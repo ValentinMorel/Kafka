@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -15,14 +16,18 @@ func main() {
 
 	// logging Usage of the program if len of arguments are less than 3
 	if len(os.Args) < 3 {
-		log.Fatal("Usage : ./main address topic")
+		log.Fatal("Usage : ./main --URL address --topic topic")
 	}
 
 	// Kafka URL is a []string type
 	var KafkaURL []string
 
-	KafkaURL = append(KafkaURL, os.Args[1])
-	KafkaTopic := os.Args[2]
+	// Parse the argument with flag URL for Kafka broker URL
+	KafkaURLArg := flag.String("URL", "localhost:9092", "string")
+	KafkaURL = append(KafkaURL, *KafkaURLArg)
+
+	// Parse the argument with flag for topic specification
+	KafkaTopic := flag.String("topic", "test", "string")
 
 	broker := Consumer_utils.NewKafkaBroker(KafkaURL)
 	master, err := broker.CreateMaster()
@@ -33,7 +38,7 @@ func main() {
 	}
 
 	// Assign the broker to a topic
-	consumer, err := master.ConsumePartition(KafkaTopic, 0, sarama.OffsetOldest)
+	consumer, err := master.ConsumePartition(*KafkaTopic, 0, sarama.OffsetOldest)
 	defer consumer.Close()
 	if err != nil {
 		panic(err)
