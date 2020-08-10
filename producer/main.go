@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	Producer_utils "kafka/producer_utils"
 
 	"github.com/Shopify/sarama"
 )
@@ -12,28 +14,29 @@ const (
 )
 
 func main() {
-	config := sarama.NewConfig()
-	config.Producer.RequiredAcks = sarama.WaitForAll
-	config.Producer.Return.Successes = true
-	config.Producer.Retry.Max = 5
 
-	brokers := []string{KafkaURL}
-	producer, err := sarama.NewSyncProducer(brokers, config)
+	// Kafka URL is a []string type
+	var KafkaURL []string
+
+	// Parse the argument with flag URL for Kafka broker URL
+	KafkaURLArg := flag.String("URL", "localhost:9092", "string")
+	KafkaURL = append(KafkaURL, *KafkaURLArg)
+
+	// Parse the argument with flag for topic specification
+	KafkaTopic := flag.String("topic", "test", "string")
+
+	broker := Producer_utils.NewKafkaProducer(KafkaURL)
+	producer, err := broker.CreateProducer()
+	defer producer.Close()
+
 	if err != nil {
 		//panic is a way to handle unexpected behavior
 		panic(err)
 	}
 
-	defer func() {
-		if err := producer.Close(); err != nil {
-			panic(err)
-		}
-	}()
-
-	topic := KafkaTopic
 	msg := &sarama.ProducerMessage{
-		Topic: topic,
-		Value: sarama.StringEncoder("Something to test broker"),
+		Topic: *KafkaTopic,
+		Value: sarama.StringEncoder("Something"),
 	}
 
 	partition, offset, err := producer.SendMessage(msg)
@@ -41,6 +44,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Message is stored in topic (%s)/partition(%d)/offset(%d)\n", topic, partition, offset)
+	fmt.Printf("Message is stored in topic (%s)/partition(%d)/offset(%d)\n", *KafkaTopic, partition, offset)
 
 }

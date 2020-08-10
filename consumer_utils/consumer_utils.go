@@ -12,7 +12,7 @@ type KafkaBroker struct {
 	Config  *sarama.Config
 }
 
-func NewKafkaBroker(address []string) *KafkaBroker {
+func NewKafkaConsumer(address []string) *KafkaBroker {
 	return &KafkaBroker{
 		Address: address,
 		Config:  CreateDefaultConfig(),

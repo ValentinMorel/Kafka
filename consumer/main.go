@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 
@@ -13,11 +12,6 @@ import (
 )
 
 func main() {
-
-	// logging Usage of the program if len of arguments are less than 3
-	if len(os.Args) < 3 {
-		log.Fatal("Usage : ./main --URL address --topic topic")
-	}
 
 	// Kafka URL is a []string type
 	var KafkaURL []string
@@ -29,7 +23,7 @@ func main() {
 	// Parse the argument with flag for topic specification
 	KafkaTopic := flag.String("topic", "test", "string")
 
-	broker := Consumer_utils.NewKafkaBroker(KafkaURL)
+	broker := Consumer_utils.NewKafkaConsumer(KafkaURL)
 	master, err := broker.CreateMaster()
 	defer master.Close()
 
