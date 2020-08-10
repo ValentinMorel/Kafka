@@ -8,22 +8,18 @@ import (
 	"github.com/Shopify/sarama"
 )
 
-const (
-	KafkaURL   = "localhost:9092"
-	KafkaTopic = "test"
-)
-
 func main() {
 
 	// Kafka URL is a []string type
 	var KafkaURL []string
 
 	// Parse the argument with flag URL for Kafka broker URL
-	KafkaURLArg := flag.String("URL", "localhost:9092", "string")
-	KafkaURL = append(KafkaURL, *KafkaURLArg)
-
+	KafkaURLArg := flag.String("URL", "localhost", "string")
 	// Parse the argument with flag for topic specification
 	KafkaTopic := flag.String("topic", "test", "string")
+	flag.Parse()
+
+	KafkaURL = append(KafkaURL, *KafkaURLArg)
 
 	broker := Producer_utils.NewKafkaProducer(KafkaURL)
 	producer, err := broker.CreateProducer()
@@ -32,6 +28,7 @@ func main() {
 	if err != nil {
 		//panic is a way to handle unexpected behavior
 		panic(err)
+
 	}
 
 	msg := &sarama.ProducerMessage{

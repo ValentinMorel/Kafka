@@ -18,10 +18,11 @@ func main() {
 
 	// Parse the argument with flag URL for Kafka broker URL
 	KafkaURLArg := flag.String("URL", "localhost:9092", "string")
-	KafkaURL = append(KafkaURL, *KafkaURLArg)
-
 	// Parse the argument with flag for topic specification
 	KafkaTopic := flag.String("topic", "test", "string")
+	flag.Parse()
+
+	KafkaURL = append(KafkaURL, *KafkaURLArg)
 
 	broker := Consumer_utils.NewKafkaConsumer(KafkaURL)
 	master, err := broker.CreateMaster()
