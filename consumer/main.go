@@ -7,8 +7,6 @@ import (
 	"os/signal"
 
 	Consumer_utils "kafka/consumer_utils"
-
-	"github.com/Shopify/sarama"
 )
 
 func main() {
@@ -20,28 +18,18 @@ func main() {
 	KafkaURLArg := flag.String("URL", "localhost:9092", "string")
 	// Parse the argument with flag for topic specification
 	KafkaTopic := flag.String("topic", "test", "string")
+	// Parse the argument with flag for partition specification
+	KafkaPartition := flag.Int("partition", 0, "int")
 	flag.Parse()
 
 	KafkaURL = append(KafkaURL, *KafkaURLArg)
 
-	broker := Consumer_utils.NewKafkaConsumer(KafkaURL)
-	master, err := broker.CreateMaster()
-	defer master.Close()
-
-	if err != nil {
-		panic(err)
-	}
-
-	// Assign the broker to a topic
-	consumer, err := master.ConsumePartition(*KafkaTopic, 0, sarama.OffsetOldest)
+	broker := Consumer_utils.NewKafkaConsumer(KafkaURL, *KafkaTopic, *KafkaPartition)
+	consumer := broker.CreatePartitionConsumer()
 	defer consumer.Close()
-	if err != nil {
-		panic(err)
-	}
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
-
 	msgCount := 0
 	doneCh := make(chan struct{})
 

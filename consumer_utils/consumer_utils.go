@@ -7,28 +7,46 @@ import (
 	"github.com/Shopify/sarama"
 )
 
-type KafkaBroker struct {
-	Address []string
-	Config  *sarama.Config
-}
-
-func NewKafkaConsumer(address []string) *KafkaBroker {
-	return &KafkaBroker{
-		Address: address,
-		Config:  CreateDefaultConfig(),
-	}
-}
-
 func CreateDefaultConfig() *sarama.Config {
 	Config := sarama.NewConfig()
 	Config.Consumer.Return.Errors = true
 	return Config
 }
 
+type KafkaBroker struct {
+	Address        []string
+	Config         *sarama.Config
+	KafkaTopic     string
+	KafkaPartition int
+}
+
+func NewKafkaConsumer(address []string, kafkaTopic string, kafkaPartition int) *KafkaBroker {
+	return &KafkaBroker{
+		Address:        address,
+		Config:         CreateDefaultConfig(),
+		KafkaTopic:     kafkaTopic,
+		KafkaPartition: kafkaPartition,
+	}
+}
+
 func (c *KafkaBroker) CreateMaster() (sarama.Consumer, error) {
 
 	master, err := sarama.NewConsumer(c.Address, c.Config)
 	return master, err
+}
+
+func (c *KafkaBroker) CreatePartitionConsumer() sarama.PartitionConsumer {
+	master, err := c.CreateMaster()
+
+	if err != nil {
+		panic(err)
+	}
+	consumer, err := master.ConsumePartition(c.KafkaTopic, int32(c.KafkaPartition), sarama.OffsetOldest)
+
+	if err != nil {
+		panic(err)
+	}
+	return consumer
 }
 
 func MessageListener(consumer sarama.PartitionConsumer, doneCh chan struct{}, signals chan os.Signal, msgCount int) {
