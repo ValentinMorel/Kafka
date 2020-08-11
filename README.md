@@ -71,6 +71,8 @@ Dillinger is currently extended with the following plugins. Instructions on how 
 
 After Installing the needed packages : 
 
+Basic Example :
+
 ```
 go run consumer/main.go KAFKA_URL TOPIC
 go run producer/main.go
@@ -81,3 +83,16 @@ expected output :
 Received messages  Something to test broker
 ```
 
+Web API Example : 
+
+```
+go run APIproducer/main.go
+go run consumer/main.go
+```
+
+and make a request on another shell : 
+
+```
+curl -i -X POST -H 'Content-Type: application/json' -d '{"key": "User", "value": "user@email.com"}' http://localhost:8888/producer/sync
+
+```
