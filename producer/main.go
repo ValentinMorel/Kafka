@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	Producer_utils "kafka/producer_utils"
+	producer_utils "kafka/producer_utils"
 
 	"github.com/Shopify/sarama"
 )
@@ -21,14 +21,15 @@ func main() {
 
 	KafkaURL = append(KafkaURL, *KafkaURLArg)
 
-	broker := Producer_utils.NewKafkaProducer(KafkaURL)
+	// Configuration is not explicit here
+	// Could be a file parsing to extract configuration
+	broker := producer_utils.NewKafkaProducer(KafkaURL)
 	producer, err := broker.CreateProducer()
 	defer producer.Close()
 
 	if err != nil {
 		//panic is a way to handle unexpected behavior
 		panic(err)
-
 	}
 
 	msg := &sarama.ProducerMessage{

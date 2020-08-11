@@ -1,4 +1,4 @@
-package Producer_utils
+package producer_utils
 
 import (
 	"github.com/Shopify/sarama"
@@ -9,7 +9,7 @@ type KafkaBroker struct {
 	Config  *sarama.Config
 }
 
-func NewKafkaProducer(address []string) *KafkaBroker {
+func NewKafkaBroker(address []string) *KafkaBroker {
 	return &KafkaBroker{
 		Address: address,
 		Config:  CreateDefaultConfig(),

@@ -1,4 +1,4 @@
-package Consumer_utils
+package consumer_utils
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type KafkaBroker struct {
 	KafkaPartition int
 }
 
-func NewKafkaConsumer(address []string, kafkaTopic string, kafkaPartition int) *KafkaBroker {
+func NewKafkaBroker(address []string, kafkaTopic string, kafkaPartition int) *KafkaBroker {
 	return &KafkaBroker{
 		Address:        address,
 		Config:         CreateDefaultConfig(),
@@ -30,19 +30,16 @@ func NewKafkaConsumer(address []string, kafkaTopic string, kafkaPartition int) *
 }
 
 func (c *KafkaBroker) CreateMaster() (sarama.Consumer, error) {
-
 	master, err := sarama.NewConsumer(c.Address, c.Config)
 	return master, err
 }
 
 func (c *KafkaBroker) CreatePartitionConsumer() sarama.PartitionConsumer {
 	master, err := c.CreateMaster()
-
 	if err != nil {
 		panic(err)
 	}
 	consumer, err := master.ConsumePartition(c.KafkaTopic, int32(c.KafkaPartition), sarama.OffsetOldest)
-
 	if err != nil {
 		panic(err)
 	}

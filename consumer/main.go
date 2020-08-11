@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 
-	Consumer_utils "kafka/consumer_utils"
+	consumer_utils "kafka/consumer_utils"
 )
 
 func main() {
@@ -16,15 +16,19 @@ func main() {
 
 	// Parse the argument with flag URL for Kafka broker URL
 	KafkaURLArg := flag.String("URL", "localhost:9092", "string")
+
 	// Parse the argument with flag for topic specification
 	KafkaTopic := flag.String("topic", "test", "string")
+
 	// Parse the argument with flag for partition specification
+	// Need to Create a partition if the partition != 0
 	KafkaPartition := flag.Int("partition", 0, "int")
+
 	flag.Parse()
 
 	KafkaURL = append(KafkaURL, *KafkaURLArg)
 
-	broker := Consumer_utils.NewKafkaConsumer(KafkaURL, *KafkaTopic, *KafkaPartition)
+	broker := consumer_utils.NewKafkaBroker(KafkaURL, *KafkaTopic, *KafkaPartition)
 	consumer := broker.CreatePartitionConsumer()
 	defer consumer.Close()
 
@@ -34,7 +38,7 @@ func main() {
 	doneCh := make(chan struct{})
 
 	// Thread with goroutine
-	go Consumer_utils.MessageListener(consumer, doneCh, signals, msgCount)
+	go consumer_utils.MessageListener(consumer, doneCh, signals, msgCount)
 
 	// Sync Channels
 	<-doneCh
