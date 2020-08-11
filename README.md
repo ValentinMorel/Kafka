@@ -64,7 +64,6 @@ Dillinger is currently extended with the following plugins. Instructions on how 
 | Producer | Triggering Message Sending on Kafka Broker | Done |
 | RestAPI | Triggering actions with routes on API | Done |
 | RequestMethod | Requesting API with curl -X POST cmd | Done |
-| HealthChecker | Pinging the Broker to ensure his availability | TODO |
 
 
 ## Usage

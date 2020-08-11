@@ -12,6 +12,7 @@ import (
 
 // Struct of the messages we can send on the API when calling :
 // $ curl -i -X POST -H 'Content-Type: application/json' -d '{"key": "User", "value": "user@email.com"}' http://localhost:8888/producer/sync
+
 type MessageToQueue struct {
 	Key   string `json::"key"`
 	Value string `json::"value"`
