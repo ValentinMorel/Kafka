@@ -1,8 +1,8 @@
-package APIhandlers
+package apihandlers
 
 import (
 	"fmt"
-	"kafka/producer_utils"
+	"kafka/broker"
 	"net/http"
 	"strconv"
 
@@ -11,43 +11,47 @@ import (
 )
 
 // Struct of the messages we can send on the API when calling :
-// $ curl -i -X POST -H 'Content-Type: application/json' -d '{"key": "User", "value": "user@email.com"}' http://localhost:8888/producer/sync
+// curl \
+//  -i -X POST \
+// 	-H 'Content-Type: application/json' \
+// 	-d '{"key": "User", "value": "user@email.com"}' \
+//   http://localhost:8888/producer/sync
 
-type MessageToQueue struct {
+type messagetoqueue struct {
 	Key   string `json::"key"`
 	Value string `json::"value"`
 }
 
 const (
-	KAFKA_URL        = "localhost:9092"
-	KAFKA_SYNC_TOPIC = "test"
-	KAFKA_PARTITION  = "1"
+	KafkaUrl       = "localhost:9092"
+	KafkaSyncTopic = "test"
+	KafkaPartition = "1"
 )
 
 func SendSyncMsg(echoContext echo.Context) error {
 
-	var message MessageToQueue
+	var message messagetoqueue
 
 	if err := echoContext.Bind(&message); err != nil {
 		return echoContext.NoContent(http.StatusBadGateway)
 	}
 
-	broker := producer_utils.NewKafkaBroker([]string{KAFKA_URL})
-	producer, err := broker.CreateProducer()
+	kafkabroker := broker.NewKafkaBroker([]string{KafkaUrl}, "", "", false)
+	producer, err := kafkabroker.CreateProducer()
 	defer producer.Close()
 
 	if err != nil {
 		return echoContext.NoContent(http.StatusInternalServerError)
 	}
 
-	syncTopic := KAFKA_SYNC_TOPIC
-	partitionToEnquene, err := strconv.Atoi(KAFKA_PARTITION)
+	synctopic := KafkaSyncTopic
+	partitionToEnquene, err := strconv.Atoi(KafkaPartition)
 	if err != nil {
 		partitionToEnquene = 0
 	}
 
 	kafkaMessage := sarama.ProducerMessage{
-		Topic:     syncTopic,
+		Topic:     synctopic,
 		Key:       sarama.StringEncoder(message.Key),
 		Value:     sarama.StringEncoder(message.Value),
 		Partition: int32(partitionToEnquene),
@@ -58,5 +62,5 @@ func SendSyncMsg(echoContext echo.Context) error {
 		return echoContext.String(http.StatusInternalServerError, "Error to send message")
 	}
 
-	return echoContext.String(http.StatusOK, fmt.Sprintf("Message stored in topic %s, partition %d, offset %d", syncTopic, partition, offset))
+	return echoContext.String(http.StatusOK, fmt.Sprintf("Message stored in topic %s, partition %d, offset %d", synctopic, partition, offset))
 }

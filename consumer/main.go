@@ -6,42 +6,43 @@ import (
 	"os"
 	"os/signal"
 
-	consumer_utils "kafka/consumer_utils"
+	"kafka/broker"
+	"kafka/consumer_utils"
 )
 
 func main() {
 
-	// Kafka URL is a []string type
-	var KafkaURL []string
+	// Kafka URL is a []string type.
+	var KafkaUrl []string
 
-	// Parse the argument with flag URL for Kafka broker URL
-	KafkaURLArg := flag.String("URL", "localhost:9092", "string")
+	// Parse the argument with flag URL for Kafka broker URL.
+	KafkaUrlArg := flag.String("URL", "localhost:9092", "string")
 
-	// Parse the argument with flag for topic specification
+	// Parse the argument with flag for topic specification.
 	KafkaTopic := flag.String("topic", "test", "string")
 
-	// Parse the argument with flag for partition specification
-	// Need to Create a partition if the partition != 0
-	KafkaPartition := flag.Int("partition", 0, "int")
+	// Parse the argument with flag for partition specification.
+	// Need to Create a partition if the partition != 0.
+	KafkaPartition := flag.String("partition", "0", "string")
 
 	flag.Parse()
 
-	KafkaURL = append(KafkaURL, *KafkaURLArg)
+	KafkaUrl = append(KafkaUrl, *KafkaUrlArg)
 
-	broker := consumer_utils.NewKafkaBroker(KafkaURL, *KafkaTopic, *KafkaPartition)
-	consumer := broker.CreatePartitionConsumer()
+	KafkaBroker := broker.NewKafkaBroker(KafkaUrl, *KafkaTopic, *KafkaPartition, true)
+	consumer := KafkaBroker.CreatePartitionConsumer()
 	defer consumer.Close()
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
-	msgCount := 0
-	doneCh := make(chan struct{})
+	msgcount := 0
+	donech := make(chan struct{})
 
-	// Thread with goroutine
-	go consumer_utils.MessageListener(consumer, doneCh, signals, msgCount)
+	// Thread with goroutine.
+	go consumer_utils.MessageListener(consumer, donech, signals, msgcount)
 
-	// Sync Channels
-	<-doneCh
+	// Sync Channels.
+	<-donech
 
-	fmt.Println("Processed", msgCount, "messages")
+	fmt.Println("Processed", msgcount, "messages")
 }

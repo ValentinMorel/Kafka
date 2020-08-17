@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	producer_utils "kafka/producer_utils"
+	"kafka/broker"
 
 	"github.com/Shopify/sarama"
 )
@@ -11,20 +11,20 @@ import (
 func main() {
 
 	// Kafka URL is a []string type
-	var KafkaURL []string
+	var KafkaUrl []string
 
 	// Parse the argument with flag URL for Kafka broker URL
-	KafkaURLArg := flag.String("URL", "localhost", "string")
+	KafkaUrlArg := flag.String("URL", "localhost:9092", "string")
 	// Parse the argument with flag for topic specification
 	KafkaTopic := flag.String("topic", "test", "string")
 	flag.Parse()
 
-	KafkaURL = append(KafkaURL, *KafkaURLArg)
+	KafkaUrl = append(KafkaUrl, *KafkaUrlArg)
 
 	// Configuration is not explicit here
 	// Could be a file parsing to extract configuration
-	broker := producer_utils.NewKafkaProducer(KafkaURL)
-	producer, err := broker.CreateProducer()
+	KafkaBroker := broker.NewKafkaBroker(KafkaUrl, *KafkaTopic, string(0), false)
+	producer, err := KafkaBroker.CreateProducer()
 	defer producer.Close()
 
 	if err != nil {
