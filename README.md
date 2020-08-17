@@ -25,7 +25,7 @@ This Project uses the following external libraries :
 ## Installation
 
 1. Download kafka package and start a standalone instance
-```
+```sh
 # get a quick-and-dirty single-node ZooKeeper instance
 bin/zookeeper-server-start.sh config/zookeeper.properties
 
@@ -35,7 +35,7 @@ bin/kafka-server-start.sh config/server.properties
 
 2. Create a topic "test" and list topics
 
-```
+```sh
 # create a topic named "test" with a single partition and only one replica
 bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic test
 
@@ -46,7 +46,7 @@ bin/kafka-topics.sh --list --bootstrap-server localhost:9092
 
 3. Send and receive messages
 
-```
+```sh
 # Run the producer and then type a few messages into the console to send to the server
 bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
 
@@ -73,8 +73,8 @@ After Installing the needed packages :
 Basic Example :
 
 ```
-go run consumer/main.go KAFKA_URL TOPIC
-go run producer/main.go
+go run consumer/main.go -URL=localhost:9092 -topic=test -partition=0
+go run producer/main.go -URL=localhost:9092 -topic=test
 ```
 
 expected output : 
@@ -86,12 +86,12 @@ Web API Example :
 
 ```
 go run APIproducer/main.go
-go run consumer/main.go
+go run consumer/main.go -URL=localhost:9092 -topic=test -partition=0
 ```
 
 and make a request on another shell : 
 
 ```
-curl -i -X POST -H 'Content-Type: application/json' -d '{"key": "User", "value": "user@email.com"}' http://localhost:8888/producer/sync
+curl -i -X POST -H 'Content-Type: application/json' -d '{"key": "User", "value": "test"}' http://localhost:8888/producer/sync
 
 ```
